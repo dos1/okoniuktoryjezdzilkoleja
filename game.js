@@ -1,8 +1,11 @@
 var x = 100,y = 100;
 var frame;
 
-var bitmaps = [ 'train', 'speed1', 'speed2', 'speed3', 'horse', 'horsehappy', 'ground1', 'ground2', 'ground3', 'cloud1', 'cloud2', 'cloud3', 'sky' ];
+var bitmaps = [ 'train', 'speed1', 'speed2', 'speed3', 'horse', 'horsehappy', 'ground1', 'ground2', 'ground3','ground4', 'ground5', 'ground6', 'ground7', 'cloud1', 'cloud2', 'cloud3', 'sky' ];
 var sprites = {};
+
+var sounds = ['ciopong', 'dumdum', 'ciuciu', 'music'];
+var samples = {};
 
 var horsepos = 5;
 
@@ -49,7 +52,7 @@ function draw() {
             draw_sprite(canvas, sprites.sky, skypos, 91); // min 256+282 max -256-282+512
             draw_sprite(canvas, sprites.sky, skypos+1076, 91); // min 256+282 max -256-282+512
 
-            draw_sprite(canvas, sprites['ground'+(~~(counter/20)%3+1)], 256, 343);
+            draw_sprite(canvas, sprites['ground'+(~~(counter/Math.max(1,14-speed/2))%7+1)], 256, 343);
             draw_sprite(canvas, sprites['cloud'+(~~(counter/16)%3+1)], 178, 81);
             draw_sprite(canvas, sprites.train, 256, 256 - bump);
             draw_sprite(canvas, sprites['speed'+(~~(counter/20)%3+1)], 256, 256 - bump);
@@ -127,6 +130,10 @@ function update() {
                         
                         vid.addEventListener('ended', function() {
                             started = true;
+                                       play_sample(samples.music, 1.0, 1.0, true);
+
+                                                            play_sample(samples.ciopong, 0.4, 1.0, true);
+
                         });
 played = true;            
         }
@@ -134,9 +141,20 @@ played = true;
         if (!started) return;
 
         counter++;
-        if (bump>=0) bump-=0.2;
+        if (bump>=0) {
+            bump-=0.2;
+
+        }
         
-        skypos+=0.5;
+        if (counter % (60*10) == 0) {
+           play_sample(samples.ciuciu, 1.0, 1.0, false);            
+        }
+
+             if (counter % (90) == 0) {
+           play_sample(samples.dumdum, 1.0, 1.0, false);
+        }
+
+        skypos+=0.4 + speed/8;
         if (skypos > 256+282) {
             skypos = -256-282;
         }
@@ -159,7 +177,7 @@ played = true;
         if (horsepos > 290) {
             score += 0.1;
         }
-        speed += 0.0015;
+        speed += 0.0022;
         
 }
 
@@ -172,6 +190,10 @@ function main()
         
         bitmaps.forEach(function(name) {
             sprites[name] = load_bmp(name+'.png');
+        });
+        
+        sounds.forEach(function(name) {
+            samples[name] = load_sample(name+'.ogg');
         });
         
 	ready(function(){
